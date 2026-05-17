@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>F1 Live Explorer</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Loading With added race flag -->
+    <div id="loader">
+        <div class="race-flag"></div>
+        <p>Loading race data...</p>
+    </div>
+
+    <div class="explorer-layout">
+
+        <!-- Left Sidebar -->
+        <div class="team-sidebar left">
+            <img src="images/teams/ferrari_logo_crest.png">
+            <img src="images/teams/redbull_logo.png">
+            <img src="images/teams/mercedes_logo.png">
+            <img src="images/teams/mclaren_logo.webp">
+            <img src="images/teams/aston_martin_logo.png">
+            <img src="images/teams/alpine_logo.png">
+        </div>
+
+        <!-- Main Content -->
+        <div class="container">
+
+            <div class="navbar">
+                <a href="landing.html">Home</a>
+                <a href="index.html">Dashboard</a>
+                <a href="about.html">About</a>
+                <a href="project.html">Driver Explorer</a>
+            </div>
+
+            <h1>Live F1 Driver Standings</h1>
+
+            <p style="text-align:center;">
+                Live drivers data pulled from F1 API through the backend endpoint.
+            </p>
+
+            <div id="live-f1-data" class="grid"></div>
+
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="team-sidebar right">
+            <img src="images/teams/williams_logo.webp">
+            <img src="images/teams/haas_f1_logo.jpg">
+            <img src="images/teams/vcarb_logo.webp">
+            <img src="images/teams/audi_logo.avif">
+            <img src="images/teams/cadillac_f1_logo.webp">
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", async () => {
+
+            AOS.init();
+
+            let favorites = [];
+
+            async function fetchFavorites() {
+                const res = await fetch("http://localhost:3000/api/favorites");
+                const data = await res.json();
+
+                favorites = data.map(f =>
+                    (f.driver_name || "").toLowerCase().trim()
+                );
+            }
+
+            function isFavorite(name) {
+                return favorites.includes(name.toLowerCase().trim());
+            }
+
+            await fetchFavorites();
+
+            fetch("http://localhost:3000/api/f1-standings")
+                .then(res => res.json())
+                .then(raw => {
+
+                    const data = Array.isArray(raw)
+                        ? raw
+                        : raw.data || raw.results || raw.standings || [];
+
+                    const container = document.getElementById("live-f1-data");
+                    container.innerHTML = "";
+
+                    data.forEach(driver => {
+
+                        const driverName =
+                            driver.driver_name ||
+                            driver.full_name ||
+                            driver.name;
+
+                        const card = document.createElement("div");
+                        card.className = "card";
+                        card.setAttribute("data-aos", "fade-up");
+
+                        const isFav = isFavorite(driverName);
+
+                        card.innerHTML = `
+                            <div class="position">P${driver.position ?? "?"}</div>
+                            <h3>${driverName}</h3>
+                            <p>Points: ${driver.points ?? "N/A"}</p>
+                            <p>Team: ${driver.team_name || "Unknown"}</p>
+
+                            <button class="fav-btn">
+                                ${isFav ? "Remove Favorite" : "Add Favorite"}
+                            </button>
+
+                            <small>**Click card to view driver**</small>
+                        `;
+
+                        card.addEventListener("click", (e) => {
+                            if (e.target.closest(".fav-btn")) return;
+
+                            window.location.href =
+                                `driver.html?name=${encodeURIComponent(driverName)}`;
+                        });
+
+                        const btn = card.querySelector(".fav-btn");
+
+                        btn.addEventListener("click", async (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            const name = driverName;
+                            const alreadyFav = isFavorite(name);
+
+                            if (alreadyFav) {
+
+                                await fetch("http://localhost:3000/api/favorites", {
+                                    method: "DELETE",
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({ driver_name: name })
+                                });
+
+                                favorites = favorites.filter(f =>
+                                    f !== name.toLowerCase().trim()
+                                );
+
+                                btn.innerText = "Add Favorite";
+
+                            } else {
+
+                                await fetch("http://localhost:3000/api/favorites", {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({ driver_name: name })
+                                });
+
+                                favorites.push(name.toLowerCase().trim());
+
+                                btn.innerText = "Remove Favorite";
+                            }
+                        });
+
+                        container.appendChild(card);
+                    });
+
+                    AOS.refresh();
+
+                })
+                .catch(err => {
+                    console.error("STANDINGS ERROR:", err);
+                    document.getElementById("live-f1-data").innerHTML =
+                        "<p>Error loading standings data.</p>";
+                });
+
+        });
+
+    </script>
+
+</body>
+
+</html>

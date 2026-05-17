@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>F1 Dashboard</title>
+
+    <!-- Global css formatting -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- AOS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Loading implementation -->
+<div id="loader">
+    <div class="race-flag"></div>
+    <p>Loading race data...</p>
+</div> 
+
+    <div class="container">
+        <div class="sidebar-logo">
+            <img src="images/f1_logo.jpg" alt="F1 Logo">
+        </div>
+
+        <!-- Navigation -->
+        <div class="navbar">
+            <a href="landing.html">Home</a>
+            <a href="index.html">Dashboard</a>
+            <a href="about.html">About</a>
+            <a href="project.html">Driver Explorer</a>
+        </div>
+
+        <h1>F1 Dashboard</h1>
+
+        <!-- Driver cards -->
+        <div id="driver-grid" class="grid"></div>
+
+        <!-- Chart -->
+        <div class="chart-container">
+            <h2>Driver's Championship Race</h2>
+            <canvas id="pointsChart"></canvas>
+        </div>
+
+        <!-- Favorite Drivers Section -->
+        <div class="chart-container">
+            <h2>Favorite Drivers</h2>
+            <div id="favorites-list" class="grid"></div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>

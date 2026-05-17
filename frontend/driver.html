@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Driver Details</title>
+
+    <!-- Global css formatting -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+
+        body {
+            display: block;
+        }
+
+        .hero-wrapper {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .hero-card {
+            width: 100%;
+            max-width: 750px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-left: 6px solid #e10600;
+        }
+
+        .position {
+            font-size: 18px;
+            color: #ffcc00;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-box h3 {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .stat-box p {
+            margin: 5px 0 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 25px;
+            color: #ffcc00;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            text-align: center;
+            color: #ff4d4d;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="hero-wrapper">
+        <div id="driver-card">Loading driver...</div>
+    </div>
+
+    <script>
+
+        const params = new URLSearchParams(window.location.search);
+        const name = params.get("name");
+
+        function normalize(str) {
+            return (str || "")
+                .toLowerCase()
+                .trim()
+                .replace(/\s+/g, " ");
+        }
+
+        fetch("http://localhost:3000/api/f1-standings")
+            .then(res => res.json())
+            .then(data => {
+
+                const driver = data.find(d =>
+                    normalize(d.driver_name) === normalize(name)
+                );
+
+                const container = document.getElementById("driver-card");
+
+                if (!driver) {
+                    container.innerHTML = `
+                        <div class="hero-card error">
+                            <h2>Driver not found</h2>
+                            <p>${name}</p>
+                            <a href="#" onclick="history.back(); return false;">← Back</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="hero-card">
+
+                        <div class="position">P${driver.position}</div>
+
+                        <h1>${driver.driver_name}</h1>
+
+                        <p style="opacity:0.7; margin-top:5px;">
+                            ${driver.team_name || "Unknown Team"}
+                        </p>
+
+                        <div class="stats">
+
+                            <div class="stat-box">
+                                <h3>POINTS</h3>
+                                <p>${driver.points}</p>
+                            </div>
+
+                            <div class="stat-box">
+                                <h3>POSITION</h3>
+                                <p>${driver.position}</p>
+                            </div>
+
+                            <div class="stat-box">
+                                <h3>STATUS</h3>
+                                <p>ACTIVE</p>
+                            </div>
+
+                        </div>
+
+                        <a href="#" onclick="history.back(); return false;">← Back</a>
+
+                    </div>
+                `;
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById("driver-card").innerHTML = `
+                    <div class="hero-card error">
+                        <h2>Error loading driver</h2>
+                        <a href="#" onclick="history.back(); return false;">← Back</a>
+                    </div>
+                `;
+            });
+
+    </script>
+
+</body>
+</html>
