@@ -211,6 +211,20 @@ app.get("/api/f1-standings", async (req, res) => {
 });
 
 
-// Start the server
+// Serve frontend files
+app.use(express.static(path.join(__dirname, "../")));
 
+// Root fallback (important for Vercel routing)
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "../index.html"));
+});
+
+// Export for Vercel
 module.exports = app;
+
+// Local dev only
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+    });
+}
