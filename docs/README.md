@@ -40,4 +40,4 @@ This was used for animated fade in transition effects on different pages through
 
 ## Developer Manual
 
-[View Developer Manual](docs/developer_manual.md)
+[View Developer Manual](developer_manual.md)
