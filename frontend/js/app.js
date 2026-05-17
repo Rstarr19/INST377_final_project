@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 let FAVORITES_CACHE = [];
 
 async function refreshFavoritesCache() {
-    const res = await fetch("http://localhost:3000/api/favorites");
+    const res = await fetch("/api/favorites");
     const data = await res.json();
 
     FAVORITES_CACHE = data.map(f =>
@@ -42,7 +42,7 @@ async function loadLiveChart() {
     const loader = document.getElementById("loader");
     if (loader) loader.style.display = "flex";
 
-    const standingsRes = await fetch("http://localhost:3000/api/f1-standings");
+    const standingsRes = await fetch("/api/f1-standings");
     const standingsRaw = await standingsRes.json();
 
     const data = Array.isArray(standingsRaw)
@@ -121,7 +121,7 @@ async function loadLiveChart() {
 
 async function addFavorite(driverName) {
 
-    await fetch("http://localhost:3000/api/favorites", {
+    await fetch("/api/favorites", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ driver_name: driverName })
@@ -139,7 +139,7 @@ async function addFavorite(driverName) {
 
 async function removeFavorite(driverName) {
 
-    await fetch("http://localhost:3000/api/favorites", {
+    await fetch("/api/favorites", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ driver_name: driverName })
@@ -157,7 +157,7 @@ async function removeFavorite(driverName) {
 
 function loadFavorites() {
 
-    fetch("http://localhost:3000/api/favorites")
+    fetch("/api/favorites")
         .then(res => res.json())
         .then(data => {
 
